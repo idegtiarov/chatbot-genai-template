@@ -16,7 +16,7 @@ PROMPT_TEMPLATE = PromptTemplate(
     input_variables=["chat_history", "question"],
     template=(
         """The following is a friendly conversation between a user and an AI assistant. The AI assistant is talkative and provides lots of specific details from its context.
-If the assistant does not know the answer to a question, it truthfully says it does not know.
+If the assistant does not know the answer to a question, it does not make up answer and says "I don't know".
 The assistant should format its responses using newlines in a way that is easy to read.
 
 Current conversation:
