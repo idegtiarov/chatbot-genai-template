@@ -76,7 +76,7 @@ converse = APIRouter()
         }
     ),
 )
-async def chat_converse_buffered(
+async def chat_converse_buffered(  # pylint: disable=too-many-positional-arguments
     chat_id: UUID,
     user_id: Annotated[str, Security(auth_user_id)],
     request: DataRequest[ConverseChat],
@@ -135,7 +135,7 @@ data: {"message_id":"3c95858b-7405-441c-a21a-927978250ef1","segment":{"type":"te
         }
     ),
 )
-async def chat_converse_stream(
+async def chat_converse_stream(  # pylint: disable=too-many-positional-arguments
     chat_id: UUID,
     user_id: Annotated[str, Security(auth_user_id)],
     request: DataRequest[ConverseChat],
