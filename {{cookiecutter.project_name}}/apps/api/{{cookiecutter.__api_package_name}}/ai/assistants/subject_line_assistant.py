@@ -4,7 +4,7 @@ This module contains the conversational assistant. It is a simple wrapper around
 
 from typing import Any
 
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 
 from ...models import Message
 from ..llms import llm_provider

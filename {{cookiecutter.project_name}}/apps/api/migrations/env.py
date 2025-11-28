@@ -2,14 +2,12 @@ import asyncio
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlmodel import SQLModel
 
 # isort: off
 
-from {{ cookiecutter.__api_package_name }}.app.env import _
-from {{ cookiecutter.__api_package_name }}.app.db import DATABASE_URL, get_engine
+from {{ cookiecutter.__api_package_name }}.app.db import _get_database_url, get_engine
 from {{ cookiecutter.__api_package_name }}.models import *
 
 # isort: on
@@ -47,7 +45,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = DATABASE_URL
+    url = _get_database_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,

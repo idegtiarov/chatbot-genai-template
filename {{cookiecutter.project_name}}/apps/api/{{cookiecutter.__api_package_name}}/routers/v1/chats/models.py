@@ -11,7 +11,7 @@ class ChatWithMesssages(ChatBase):
     messages: list[Message]
 
     def __init__(self, chat: Chat):
-        super().__init__(**(chat.dict() | {"messages": chat.messages}))
+        super().__init__(**(chat.model_dump() | {"messages": chat.messages}))
 
 
 class CreateChat(BaseModel):

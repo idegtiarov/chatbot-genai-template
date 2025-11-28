@@ -6,17 +6,23 @@ not on internal implementation details.
 """
 
 import os
+# Set environment variables BEFORE any application imports
+# This ensures they're available when modules are loaded during test collection
+from .default_env import DEFAULT_TEST_ENV
+
+for key, value in DEFAULT_TEST_ENV.items():
+    os.environ.setdefault(key, value)
+    
 from typing import AsyncGenerator
 from uuid import uuid4
 
 import pytest
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from {{ cookiecutter.__api_package_name }}.models.user import User
-from {{ cookiecutter.__api_package_name }}.models.message import Message, MessageSegment
-from {{ cookiecutter.__api_package_name }}.models.chat import Chat
-
+from {{cookiecutter.__api_package_name}}.models.chat import Chat
+from {{cookiecutter.__api_package_name}}.models.message import Message, MessageSegment
+from {{cookiecutter.__api_package_name}}.models.user import User
 
 # =============================================================================
 # Database Fixtures
@@ -29,22 +35,26 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
     Create a database session for testing using local PostgreSQL.
     Creates a fresh engine per test to avoid event loop conflicts.
     """
-    from {{ cookiecutter.__api_package_name }}.common.environ import env_str
+    from {{cookiecutter.__api_package_name}}.common.environ import env_str
 
-    database_url = "".join([
-        "postgresql+asyncpg://",
-        env_str("DB_USERNAME", "postgres"),
-        ":",
-        env_str("DB_PASSWORD", "postgres"),
-        "@",
-        f"{env_str('DB_HOST', 'localhost')}:{env_str('DB_PORT', '5432')}",
-        "/",
-        env_str("DB_NAME", "{{ cookiecutter.database_name }}"),
-        f"?ssl={env_str('DB_SSL_MODE', 'prefer')}",
-    ])
+    database_url = "".join(
+        [
+            "postgresql+asyncpg://",
+            env_str("DB_USERNAME", "postgres"),
+            ":",
+            env_str("DB_PASSWORD", "postgres"),
+            "@",
+            f"{env_str('DB_HOST', 'localhost')}:{env_str('DB_PORT', '5432')}",
+            "/",
+            env_str("DB_NAME", "{{cookiecutter.__api_package_name}}"),
+            f"?ssl={env_str('DB_SSL_MODE', 'prefer')}",
+        ]
+    )
 
     engine = create_async_engine(database_url, echo=False)
-    sessionmaker = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    sessionmaker = async_sessionmaker(
+        engine, class_=AsyncSession, expire_on_commit=False
+    )
 
     async with sessionmaker() as session:
         yield session
@@ -197,3 +207,122 @@ def clean_env():
     yield os.environ
     os.environ.clear()
     os.environ.update(original_environ)
+
+
+# =============================================================================
+# LLM Mocking Fixtures (for LangChain 1.x testing)
+# =============================================================================
+
+
+@pytest.fixture
+def mock_llm_response():
+    """A mock LLM response for testing."""
+    return "This is a mocked response from the LLM."
+
+
+@pytest.fixture
+def mock_text_llm(mock_llm_response):
+    """
+    Mock text LLM for testing without API calls.
+
+    Returns a mock that behaves like a LangChain LLM:
+    - Has ainvoke() for async calls (returns dict for LLMChain compatibility)
+    - Has astream() for streaming
+    - Has get_num_tokens() for token counting
+    """
+    from unittest.mock import AsyncMock, MagicMock
+
+    llm = MagicMock()
+    # LLMChain expects ainvoke to return a dict with the output key
+    llm.ainvoke = AsyncMock(return_value={"output": mock_llm_response})
+    llm.get_num_tokens = MagicMock(return_value=10)
+
+    # Mock streaming - yields raw strings
+    async def async_generator():
+        for word in mock_llm_response.split():
+            yield word + " "
+
+    llm.astream = MagicMock(return_value=async_generator())
+
+    return llm
+
+
+@pytest.fixture
+def mock_chat_llm(mock_llm_response):
+    """
+    Mock chat LLM for testing without API calls.
+
+    Returns a mock that behaves like a LangChain Chat Model:
+    - Returns dict with output for LLMChain (legacy)
+    - Returns strings for LCEL patterns (modern)
+    - Has ainvoke() and astream()
+    """
+    from unittest.mock import AsyncMock, MagicMock
+
+    llm = MagicMock()
+
+    # For legacy chains: ainvoke returns dict
+    llm.ainvoke = AsyncMock(return_value={"output": mock_llm_response})
+
+    # Mock streaming response - yields strings
+    async def async_generator():
+        for word in mock_llm_response.split():
+            yield word + " "
+
+    llm.astream = MagicMock(return_value=async_generator())
+    llm.get_num_tokens = MagicMock(return_value=10)
+
+    return llm
+
+
+@pytest.fixture
+def mock_llm_provider(mock_text_llm, mock_chat_llm):
+    """
+    Mock LLM provider for testing assistants.
+
+    This mocks the {{cookiecutter.__api_package_name}}.ai.llms.llm_provider module to avoid real API calls.
+    """
+    from unittest.mock import MagicMock
+
+    provider = MagicMock()
+    provider.create_text_llm = MagicMock(return_value=mock_text_llm)
+    provider.create_chat_llm = MagicMock(return_value=mock_chat_llm)
+    provider.get_max_input_tokens = MagicMock(return_value=4000)
+    provider.get_max_output_tokens = MagicMock(return_value=500)
+    provider.is_streaming_enabled = MagicMock(return_value=True)
+
+    return provider
+
+
+# =============================================================================
+# Session-level LLM Mocking (handles module-level imports)
+# =============================================================================
+
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_llm_provider_for_imports():
+    """
+    Mock the LLM provider at session level to avoid credential errors during imports.
+
+    Some assistant modules (conversation_assistant, subject_line_assistant) create LLMs
+    at module level. This happens at import time before we can mock in individual tests.
+
+    This fixture runs once per session and mocks globally before any imports.
+    """
+    from unittest.mock import MagicMock, patch
+
+    # Create simple mock LLMs
+    mock_llm = MagicMock()
+    mock_llm.get_num_tokens = MagicMock(return_value=10)
+
+    # Create mock provider
+    mock_provider = MagicMock()
+    mock_provider.create_text_llm = MagicMock(return_value=mock_llm)
+    mock_provider.create_chat_llm = MagicMock(return_value=mock_llm)
+    mock_provider.get_max_input_tokens = MagicMock(return_value=4000)
+    mock_provider.get_max_output_tokens = MagicMock(return_value=500)
+    mock_provider.is_streaming_enabled = MagicMock(return_value=True)
+
+    # Patch globally for the entire test session
+    with patch("{{cookiecutter.__api_package_name}}.ai.llms.llm_provider", mock_provider):
+        yield mock_provider

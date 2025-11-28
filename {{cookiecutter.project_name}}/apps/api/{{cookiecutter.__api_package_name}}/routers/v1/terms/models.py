@@ -9,5 +9,5 @@ class TermsReference(BaseModel):
     url: HttpUrl = Field(
         ...,
         description="The URL of the new terms of service version",
-        example="https://www.softserveinc.com/en-us/terms-and-conditions",
+        json_schema_extra={"examples": ["https://www.softserveinc.com/en-us/terms-and-conditions"]},
     )

@@ -4,7 +4,7 @@ from enum import StrEnum
 from typing import TYPE_CHECKING, ClassVar, Literal, Self
 from uuid import UUID
 
-from langchain.schema import AIMessage, BaseMessage, HumanMessage
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 from sqlalchemy.dialects.postgresql import ENUM as SQLEnum
 from sqlalchemy.dialects.postgresql import JSONB as SQL_JSONB
 from sqlmodel import Field as SQLField

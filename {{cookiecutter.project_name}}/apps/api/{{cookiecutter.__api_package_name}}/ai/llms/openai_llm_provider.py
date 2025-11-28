@@ -2,7 +2,7 @@
 
 from typing import ClassVar
 
-from langchain.callbacks.base import Callbacks
+from langchain_core.callbacks import Callbacks
 from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from pydantic.types import SecretStr
 

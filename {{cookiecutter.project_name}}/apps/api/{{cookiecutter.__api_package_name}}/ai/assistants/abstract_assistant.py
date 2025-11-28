@@ -7,11 +7,11 @@ from abc import ABC, abstractmethod
 from types import MethodType
 from typing import Any, AsyncIterable, Coroutine, Optional
 
-from langchain.callbacks import AsyncIteratorCallbackHandler
-from langchain.callbacks.manager import AsyncCallbackManagerForChainRun
-from langchain.chains.base import Chain
-from langchain.chains.llm import LLMChain
-from langchain.prompts import PromptTemplate
+from langchain_classic.callbacks import AsyncIteratorCallbackHandler
+from langchain_classic.chains.base import Chain
+from langchain_classic.chains.llm import LLMChain
+from langchain_core.callbacks.manager import AsyncCallbackManagerForChainRun
+from langchain_core.prompts import PromptTemplate
 
 from ...app.settings import settings
 from ..llms import LLM, llm_provider

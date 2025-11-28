@@ -3,7 +3,7 @@
 # pylint: disable=missing-class-docstring
 from typing import Any, Literal, Optional, Sequence
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class ValidationErrorDetail(BaseModel):
@@ -13,8 +13,9 @@ class ValidationErrorDetail(BaseModel):
     location: str
     message: str
 
-    @validator("location", pre=True)
-    def _validate_location(cls, value: Any) -> str:  # pylint: disable=no-self-argument
+    @field_validator("location", mode="before")
+    @classmethod
+    def _validate_location(cls, value: Any) -> str:
         """Parse and validate the location value"""
         if not value:
             return ""

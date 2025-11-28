@@ -14,57 +14,58 @@ readme = "README.md"
 packages = [{ include = "{{ cookiecutter.__api_package_name }}" }]
 
 [tool.poetry.dependencies]
-python = ">=3.11, <3.12"
-pydantic = ">=2, <3"
+python = ">=3.11, <3.14"
+pydantic = "^2.10"
 python-dotenv = "^1.0.1"
-fastapi = "^0.110.0"
-langchain = ">=0.3, <0.4"
-langchain-core = ">=0.3, <0.4"
-langchain-community = ">=0.3, <0.4"
-uvicorn = "^0.29.0"
-pyjwt = "^2.8.0"
-pyyaml = "^6.0.1"
-python-multipart = "^0.0.9"
+fastapi = "^0.115.0"
+# LangChain 1.x ecosystem - Latest versions
+langchain = "^1.1"  # Latest: 1.1.0
+langchain-core = "^1.1"  # Latest: 1.1.0
+langchain-community = "^0.4"  # Latest: 0.4.1 (no 1.0 yet)
+langchain-classic = "^1.0"  # For legacy chains (LLMChain, ConversationalRetrievalChain)
+langgraph = "^1.0"  # Modern agent framework - Latest: 1.0.4
+uvicorn = "^0.32.0"
+pyjwt = "^2.9.0"
+pyyaml = "^6.0.2"
+python-multipart = "^0.0.12"
 {%- if cookiecutter.auth == "local" %}
 argon2-cffi = "^23.1.0"
 {%- elif cookiecutter.auth == "keycloak" %}
 python-keycloak = "^4.0.0"
 {%- endif %}
 # Database dependencies (PostgreSQL)
-asyncpg = "^0.29.0"
+asyncpg = "^0.30.0"
 {%- if cookiecutter.enable_pgvector %}
-pgvector = "^0.2.5"
+pgvector = "^0.3.5"
 {%- endif %}
 sqlmodel = "^0.0.22"
-sqlalchemy = { version = "^2.0.25", extras = ["asyncio"] }
-# OpenAI dependencies - only if you want to use OpenAI LLMs
-langchain-openai = ">=0.2,  <0.3"
-# GCP dependencies - only if you want to use VertexAI LLMs
-langchain-google-vertexai = ">=2,  <3"
-# AWS dependencies - only if you want to use Amazon Bedrock LLMs
-boto3 = "^1.34.74"
-botocore = "^1.34.74"
-langchain-aws = ">=0.2, <0.3"
-anthropic = "^0.48.0"
-transformers = "^4.49.0"
+sqlalchemy = { version = "^2.0.35", extras = ["asyncio"] }
+# LLM Provider integrations (LangChain 1.x compatible)
+langchain-openai = "^0.3"
+langchain-google-vertexai = "^2.1"
+langchain-aws = "^1.1"  # Latest: 1.1.0
+boto3 = "^1.40.0"
+botocore = "^1.40.0"
+anthropic = "^0.39.0"
+transformers = "^4.46.0"
 
 [tool.poetry.group.dev.dependencies]
-alembic = "^1.13.1"
+alembic = "^1.13.3"
 {%- if cookiecutter.enable_mypy %}
-mypy = "^1.8.0"
+mypy = "^1.13.0"
 {%- endif %}
 {%- if not cookiecutter.__monorepo %}
-pre-commit = "^3.7.1"
+pre-commit = "^4.0.0"
 {%- endif %}
-pylint = "^3.0.3"
-pytest = "^8.0.0"
-pytest-asyncio = "^0.23.7"
-pytest-cov = "^4.1.0"
+pylint = "^3.3.0"
+pytest = "^8.3.0"
+pytest-asyncio = "^0.24.0"
+pytest-cov = "^5.0.0"
 isort = "^5.13.2"
-black = "^24.1.1"
-flake8 = "^7.0.0"
-types-pyyaml = "^6.0.12.12"
-boto3-stubs = "^1.34.70"
+black = "^24.10.0"
+flake8 = "^7.1.0"
+types-pyyaml = "^6.0.12.20240917"
+boto3-stubs = "^1.40.0"
 
 {% else -%}
 [build-system]
@@ -78,62 +79,61 @@ version = "0.0.0"
 authors = [{name = "SoftServe CoE Solutions", email = "coe-solutions@softserveinc.com"}]
 keywords = ["chatbot", "assistant", "generative", "ai", "llm", "gpt"]
 readme = "README.md"
-requires-python = ">=3.11, <3.12"
+requires-python = ">=3.11, <3.14"
 dependencies = [
-  "pydantic==1.10.14", # https://github.com/tiangolo/sqlmodel/issues/654
-  "python-dotenv==1.0.1",
-  "fastapi==0.109.2",
-  "langchain==0.1.14",
-  "langchain-core==0.1.37",
-  "langchain-community==0.0.30",
-  "tiktoken==0.5.2",
-  "uvicorn==0.29.0",
-  "pyjwt==2.8.0",
-  "pyyaml==6.0.1",
-  "python-multipart==0.0.9",
+  "pydantic>=2.10, <3",
+  "python-dotenv>=1.0.1, <2",
+  "fastapi>=0.115.0, <0.116",
+  # LangChain 1.x ecosystem - Latest versions
+  "langchain>=1.1, <1.2",
+  "langchain-core>=1.1, <1.2",
+  "langchain-community>=0.4, <0.5",
+  "langchain-classic>=1.0, <1.1",
+  "langgraph>=1.0, <1.1",
+  "uvicorn>=0.32.0, <0.33",
+  "pyjwt>=2.9.0, <3",
+  "pyyaml>=6.0.2, <7",
+  "python-multipart>=0.0.12, <0.1",
   {%- if cookiecutter.auth == "local" %}
-  "argon2-cffi==23.1.0",
+  "argon2-cffi>=23.1.0, <24",
   {%- elif cookiecutter.auth == "keycloak" %}
-  "python-keycloak==4.0.0",
+  "python-keycloak>=4.0.0, <5",
   {%- endif %}
   # Database dependencies (PostgreSQL)
-  "asyncpg==0.29.0",
+  "asyncpg>=0.29.0, <0.30",
   {%- if cookiecutter.enable_pgvector %}
-  "pgvector==0.2.5",
+  "pgvector>=0.3.5, <0.4",
   {%- endif %}
-  "sqlmodel==0.0.13", # https://github.com/tiangolo/sqlmodel/discussions/732
-  "sqlalchemy[asyncio]==2.0.25",
-  # OpenAI dependencies - only if you want to use OpenAI LLMs
-  "openai==1.14.3",
-  "langchain-openai==0.1.1",
-  # GCP dependencies - only if you want to use VertexAI LLMs
-  "google-cloud-aiplatform==1.46.0",
-  "langchain-google-vertexai==0.1.2",
-  "transformers==4.37.2",
-  # AWS dependencies - only if you want to use Amazon Bedrock LLMs
-  "boto3==1.34.74",
-  "botocore==1.34.74",
-  "anthropic==0.21.3",
+  "sqlmodel>=0.0.22, <0.1",
+  "sqlalchemy[asyncio]>=2.0.35, <2.1",
+  # LLM Provider integrations (LangChain 1.x compatible)
+  "langchain-openai>=0.3, <0.4",
+  "langchain-google-vertexai>=2.1, <3",
+  "langchain-aws>=1.1, <1.2",
+  "boto3>=1.40.0, <1.41",
+  "botocore>=1.40.0, <1.41",
+  "anthropic>=0.39.0, <0.40",
+  "transformers>=4.46.0, <5",
 ]
 
 [project.optional-dependencies]
 dev = [
-  "alembic==1.13.1",
+  "alembic>=1.13.3, <1.14",
   {%- if cookiecutter.enable_mypy %}
-  "mypy==1.8.0",
+  "mypy>=1.13.0, <1.14",
   {%- endif %}
   {%- if not cookiecutter.__monorepo %}
-  "pre-commit==3.7.1",
+  "pre-commit>=4.0.0, <5",
   {%- endif %}
-  "pylint==3.0.3",
-  "pytest==8.0.0",
-  "pytest-asyncio==0.23.7",
-  "pytest-cov==4.1.0",
-  "isort==5.13.2",
-  "black==24.1.1",
-  "flake8==7.0.0",
-  "types-pyyaml==6.0.12.12",
-  "boto3-stubs==1.34.70",
+  "pylint>=3.3.0, <4",
+  "pytest>=8.3.0, <9",
+  "pytest-asyncio>=0.24.0, <0.25",
+  "pytest-cov>=5.0.0, <6",
+  "isort>=5.13.2, <6",
+  "black>=24.10.0, <25",
+  "flake8>=7.1.0, <8",
+  "types-pyyaml>=6.0.12.20240917",
+  "boto3-stubs>=1.40.0, <1.41",
 ]
 
 [tool.setuptools.packages.find]
@@ -143,7 +143,7 @@ include = ["{{ cookiecutter.__api_package_name }}", "{{ cookiecutter.__api_packa
 
 [tool.black]
 line-length = 120
-target-version = ["py311"]
+target-version = ["py311", "py312", "py313"]
 include = "\\.pyi?$"
 
 {%- if cookiecutter.enable_mypy %}
@@ -180,6 +180,9 @@ profile = "black"
 pythonpath = ["."]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+markers = [
+    "integration: marks tests as integration tests (require LLM credentials, deselect with '-m \"not integration\"')",
+]
 
 [tool.coverage.run]
 branch = true  # Enable branch coverage

@@ -3,7 +3,7 @@
 from typing import Optional
 from urllib.parse import quote_plus
 
-from pydantic import BaseModel, HttpUrl, parse_obj_as
+from pydantic import BaseModel, HttpUrl, TypeAdapter
 
 
 class User(BaseModel):
@@ -26,7 +26,7 @@ class User(BaseModel):
             # remove email domain
             name = name[:at]
 
-        url: HttpUrl = parse_obj_as(
-            HttpUrl, f"https://ui-avatars.com/api/?background=E5E8EB&size=128&bold=true&name={quote_plus(name)}"
+        url: HttpUrl = TypeAdapter(HttpUrl).validate_python(
+            f"https://ui-avatars.com/api/?background=E5E8EB&size=128&bold=true&name={quote_plus(name)}"
         )
         return url
