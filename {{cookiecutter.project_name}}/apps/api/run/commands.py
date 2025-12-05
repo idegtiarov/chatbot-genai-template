@@ -32,7 +32,7 @@ def install() -> None:
     {%- if cookiecutter.pip == "poetry" %}
 
     print("Installing dependencies...")
-    exec("poetry", "lock", "--no-update")
+    exec("poetry", "lock")
     exec("poetry", "install", "--no-root")
 
     {%- elif cookiecutter.pip == "pip" %}

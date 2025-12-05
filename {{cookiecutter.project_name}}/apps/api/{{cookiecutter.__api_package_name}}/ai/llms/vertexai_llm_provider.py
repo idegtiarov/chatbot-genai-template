@@ -3,7 +3,7 @@
 from os import environ, path
 from typing import ClassVar
 
-from langchain.callbacks.base import Callbacks
+from langchain_core.callbacks import Callbacks
 from langchain_google_vertexai import ChatVertexAI, VertexAI
 from langchain_google_vertexai.embeddings import VertexAIEmbeddings
 from langchain_google_vertexai.llms import _VertexAICommon as VertexAICommon

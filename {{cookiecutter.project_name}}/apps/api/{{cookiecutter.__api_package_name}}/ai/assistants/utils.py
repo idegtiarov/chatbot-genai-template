@@ -2,7 +2,7 @@
 
 from typing import Sequence
 
-from langchain.schema import BaseMessage
+from langchain_core.messages import BaseMessage
 
 from ...common.datetime import epoch
 from ...models import Message, MessageRole

@@ -11,31 +11,36 @@ from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ..common.environ import env_bool, env_str
+
 {% if cookiecutter.terraform_cloud_provider == 'gcp' %}
-GCP_CLOUDSQL = env_str("DB_INSTANCE_CONNECTION_NAME", "")  # GCP Cloud SQL instance connection name
+GCP_CLOUDSQL = env_str("DB_INSTANCE_CONNECTION_NAME", "")
+  # GCP Cloud SQL instance connection name
 {%- endif %}
-DATABASE_URL = "".join(
-    [
-        "postgresql+asyncpg://",
-        env_str("DB_USERNAME", "postgres"),
-        ":",
-        env_str("DB_PASSWORD", "postgres"),
-        "@",
-        {% if cookiecutter.terraform_cloud_provider == 'gcp' %}"" if GCP_CLOUDSQL else {% endif %}f"{env_str('DB_HOST', 'localhost')}:{env_str('DB_PORT', '5432')}",
-        "/",
-        env_str("DB_NAME", None),
-        f"?ssl={env_str('DB_SSL_MODE', 'prefer')}",
-        {%- if cookiecutter.terraform_cloud_provider == 'gcp' %}
-        "" if not GCP_CLOUDSQL else f"&host=/cloudsql/{GCP_CLOUDSQL}/.s.PGSQL.5432",
-        {%- endif %}
-    ]
-)
+def _get_database_url() -> str:
+    """Build database URL from environment variables"""
+    return "".join(
+        [
+            "postgresql+asyncpg://",
+            env_str("DB_USERNAME", "postgres"),
+            ":",
+            env_str("DB_PASSWORD", "postgres"),
+            "@",
+            {% if cookiecutter.terraform_cloud_provider == 'gcp' %}"" if GCP_CLOUDSQL else {% endif %}f"{env_str('DB_HOST', 'localhost')}:{env_str('DB_PORT', '5432')}",
+            "/",
+            env_str("DB_NAME", None),
+            f"?ssl={env_str('DB_SSL_MODE', 'prefer')}",
+            {%- if cookiecutter.terraform_cloud_provider == 'gcp' %}
+            "" if not GCP_CLOUDSQL else f"&host=/cloudsql/{GCP_CLOUDSQL}/.s.PGSQL.5432",
+            {%- endif %}
+        ]
+    )
 
 
 @cache
 def get_engine() -> AsyncEngine:
     """Create an asynchronous database engine"""
-    engine = create_async_engine(DATABASE_URL, echo=env_bool("DB_ECHO", False), future=True)
+    database_url = _get_database_url()
+    engine = create_async_engine(database_url, echo=env_bool("DB_ECHO", False), future=True)
     {%- if cookiecutter.enable_pgvector %}
     event.listen(engine.pool, "connect", _enable_vector_for_connection)
     {%- endif %}

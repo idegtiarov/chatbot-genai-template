@@ -4,18 +4,20 @@ This module contains the conversational assistant. It is a simple wrapper around
 
 from typing import AsyncIterable, ClassVar, cast
 
-from langchain.chains.base import Chain
-from langchain.chains.combine_documents.stuff import StuffDocumentsChain
-from langchain.chains.conversational_retrieval.base import ConversationalRetrievalChain
-from langchain.chains.llm import LLMChain
-from langchain.prompts import (
+from langchain_classic.chains.base import Chain
+from langchain_classic.chains.combine_documents.stuff import StuffDocumentsChain
+from langchain_classic.chains.conversational_retrieval.base import (
+    ConversationalRetrievalChain,
+)
+from langchain_classic.chains.llm import LLMChain
+from langchain_core.prompts import (
     BasePromptTemplate,
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
     PromptTemplate,
     SystemMessagePromptTemplate,
 )
-from langchain.schema.retriever import BaseRetriever
+from langchain_core.retrievers import BaseRetriever
 
 from ...models import Message
 from ..llms import llm_provider

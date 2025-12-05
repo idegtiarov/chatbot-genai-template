@@ -41,7 +41,10 @@ converse = APIRouter()
                             "properties": {
                                 "data": {
                                     "type": "array",
-                                    "prefixItems": [ConverseUserMessage.schema(), Message.schema()],
+                                    "prefixItems": [
+                                        ConverseUserMessage.model_json_schema(),
+                                        Message.model_json_schema(),
+                                    ],
                                     "minItems": 2,
                                     "maxItems": 2,
                                     "additionalItems": False,

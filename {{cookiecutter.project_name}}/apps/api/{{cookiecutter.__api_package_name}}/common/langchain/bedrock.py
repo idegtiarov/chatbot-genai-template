@@ -12,10 +12,10 @@ from time import sleep
 from typing import Any, Callable, Optional, TypeVar
 
 from botocore.exceptions import EventStreamError
-from langchain.schema import BaseMessage
 from langchain_aws.chat_models.bedrock import ChatBedrock as BaseBedrockChat
 from langchain_aws.llms.bedrock import BedrockLLM as BaseBedrock
 from langchain_core.callbacks import CallbackManagerForLLMRun
+from langchain_core.messages import BaseMessage
 
 _BedrockBaseModel = BaseBedrock
 T = TypeVar("T")
