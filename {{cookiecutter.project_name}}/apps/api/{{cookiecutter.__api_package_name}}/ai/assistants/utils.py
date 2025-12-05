@@ -33,6 +33,8 @@ def format_actor_message(message: MessageLike) -> str:
         elif isinstance(message, tuple):
             msgtype = message[0]
             content = message[1]
+        else:
+            return ""
 
         if msgtype == "ai":
             role = MessageRole.ASSISTANT

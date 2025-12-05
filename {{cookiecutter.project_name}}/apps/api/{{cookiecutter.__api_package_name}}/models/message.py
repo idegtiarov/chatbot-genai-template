@@ -7,7 +7,6 @@ from uuid import UUID
 from langchain.schema import AIMessage, BaseMessage, HumanMessage
 from sqlalchemy.dialects.postgresql import ENUM as SQLEnum
 from sqlalchemy.dialects.postgresql import JSONB as SQL_JSONB
-from sqlmodel import Column as SQLColumn
 from sqlmodel import Field as SQLField
 from sqlmodel import Relationship as SQLRelationship
 
