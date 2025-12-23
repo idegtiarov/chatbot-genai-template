@@ -4,7 +4,6 @@ from logging import getLogger
 from typing import Annotated, Any, cast
 from uuid import UUID
 
-import numpy as np
 from fastapi import (
     APIRouter,
     Depends,
@@ -15,7 +14,6 @@ from fastapi import (
     UploadFile,
 )
 
-from ....ai.llms import llm_provider
 from ....app.schemas import (
     DataRequest,
     DataResponse,
@@ -36,7 +34,7 @@ from .rag_models import (
     SearchRAGDocumentsResponse,
     UpdateRAGDocumentRequest,
 )
-from .rag_services import FileValidationError, validate_and_parse_file
+from .rag_services import FileValidationError, generate_embedding, validate_and_parse_file
 
 logger = getLogger(__name__)
 
@@ -58,7 +56,7 @@ async def create_rag_document(
     data = request.data
 
     # Generate embedding for the content
-    embedding = await _generate_embedding(data.content)
+    embedding = await generate_embedding(data.content)
 
     document = RAGDocument(
         title=data.title,
@@ -92,9 +90,11 @@ async def upload_rag_document(
         parsed = await validate_and_parse_file(file)
     except FileValidationError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message) from e
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
     # Generate embedding
-    embedding = await _generate_embedding(parsed.text_content)
+    embedding = await generate_embedding(parsed.text_content)
 
     document = RAGDocument(
         title=parsed.filename.rsplit(".", 1)[0] if "." in parsed.filename else parsed.filename,
@@ -170,7 +170,7 @@ async def update_rag_document(
 
     # Regenerate embedding if content changed
     if content_changed:
-        document.embedding = await _generate_embedding(document.content)
+        document.embedding = await generate_embedding(document.content)
         logger.info("Regenerated embedding for RAG document %s", document.id)
 
     await document_crud.save(document)
@@ -210,7 +210,7 @@ async def search_rag_documents(
     data = request.data
 
     # Generate embedding for the search query
-    query_embedding = await _generate_embedding(data.query)
+    query_embedding = await generate_embedding(data.query)
 
     # Search by vector similarity
     results = await document_crud.search_by_embedding(
@@ -224,11 +224,3 @@ async def search_rag_documents(
     ]
 
     return JSONDataResponse(SearchRAGDocumentsResponse(results=search_results, query=data.query))
-
-
-async def _generate_embedding(text: str) -> np.ndarray:
-    """Generate embedding vector for text using configured LLM provider"""
-    embedding_llm = llm_provider.create_embedding_llm()
-    embedding = await embedding_llm.aembed_query(text)
-    # Convert to numpy array for pgvector compatibility
-    return np.array(embedding, dtype=np.float32)

@@ -25,7 +25,7 @@ First of all, please make sure that you have SSH keys set up for your GitHub acc
 If you have [`pipx`](https://pipx.pypa.io/stable/installation/) (_recommended_) installed on your machine, then do:
 
 1. `cd ~/Projects` - or any other directory where you want to generate the project from the template.
-1. `pipx run cookiecutter git+ssh://git@github.com/SoftServeInc/chatbot-genai-template.git --checkout 1.0.0`
+1. `pipx run cookiecutter git+ssh://git@github.com/SoftServeInc/chatbot-genai-template.git --checkout <required-tag>` - where `<required-tag>` is the tag of the template repository that you want to use.
 2. Follow the instructions to generate the project from the template.
 
 If you don't have `pipx` installed then either install it and follow the steps above or do the following:
